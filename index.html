@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>龍鳳雙寶活動王</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .card-in { animation: slideUp 0.4s ease forwards; }
+    @keyframes slideUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    .tag-btn { transition: all .18s; cursor: pointer; }
+    .tag-btn.active { transform: scale(1.04); }
+    .bounce { display:inline-block; animation: bop .7s ease-in-out infinite alternate; }
+    @keyframes bop { from{transform:translateY(0)} to{transform:translateY(-5px)} }
+  </style>
+</head>
+<body class="min-h-screen" style="background:linear-gradient(135deg,#fdf2f8 0%,#f0ebff 50%,#fff9eb 100%)">
+
+<header class="bg-white shadow-sm sticky top-0 z-10">
+  <div class="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
+    <span class="text-3xl"><span class="bounce">🐉</span><span class="bounce" style="animation-delay:.25s">🌸</span></span>
+    <div>
+      <div class="text-base font-bold text-purple-800">龍鳳雙寶活動王</div>
+      <div class="text-xs text-gray-400">專為 2 歲雙胞胎設計・即時活動建議</div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-lg mx-auto px-4 py-5 space-y-4">
+
+  <div class="bg-white rounded-2xl shadow-sm p-4">
+    <div class="text-sm font-bold text-gray-600 mb-3">📍 現在在哪裡？</div>
+    <div class="grid grid-cols-2 gap-2">
+      <button class="tag-btn py-3 rounded-xl border-2 border-pink-200 text-sm font-semibold text-pink-600 bg-pink-50" data-group="scene" data-value="公園">🌳 公園</button>
+      <button class="tag-btn py-3 rounded-xl border-2 border-yellow-200 text-sm font-semibold text-yellow-600 bg-yellow-50" data-group="scene" data-value="餐廳">🍜 餐廳</button>
+      <button class="tag-btn py-3 rounded-xl border-2 border-blue-200 text-sm font-semibold text-blue-600 bg-blue-50" data-group="scene" data-value="家中">🏠 家中</button>
+      <button class="tag-btn py-3 rounded-xl border-2 border-green-200 text-sm font-semibold text-green-600 bg-green-50" data-group="scene" data-value="大眾運輸">🚌 大眾運輸</button>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm p-4">
+    <div class="text-sm font-bold text-gray-600 mb-3">🌤️ 環境狀況？</div>
+    <div class="grid grid-cols-2 gap-2">
+      <button class="tag-btn py-3 rounded-xl border-2 border-orange-200 text-sm font-semibold text-orange-600 bg-orange-50" data-group="env" data-value="晴天">☀️ 晴天</button>
+      <button class="tag-btn py-3 rounded-xl border-2 border-indigo-200 text-sm font-semibold text-indigo-600 bg-indigo-50" data-group="env" data-value="雨天">🌧️ 雨天</button>
+      <button class="tag-btn py-3 rounded-xl border-2 border-red-200 text-sm font-semibold text-red-600 bg-red-50" data-group="env" data-value="擁擠">👥 擁擠</button>
+      <button class="tag-btn py-3 rounded-xl border-2 border-teal-200 text-sm font-semibold text-teal-600 bg-teal-50" data-group="env" data-value="安靜">🤫 安靜</button>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm p-4">
+    <div class="text-sm font-bold text-gray-600 mb-3">⚡ 目前狀態？</div>
+    <div class="flex flex-col gap-2">
+      <button class="tag-btn py-3 rounded-xl border-2 border-purple-200 text-sm font-semibold text-purple-700 bg-purple-50" data-group="state" data-value="精力充沛">🔋 小孩精力充沛</button>
+      <button class="tag-btn py-3 rounded-xl border-2 border-pink-200 text-sm font-semibold text-pink-700 bg-pink-50" data-group="state" data-value="快斷線">😤 小孩快斷線（崩潰邊緣）</button>
+      <button class="tag-btn py-3 rounded-xl border-2 border-gray-200 text-sm font-semibold text-gray-600 bg-gray-50" data-group="state" data-value="父母疲憊">😴 爸媽超累了</button>
+    </div>
+  </div>
+
+  <button onclick="generate()"
+    class="w-full py-4 rounded-2xl text-white font-bold text-lg shadow-lg transition-all active:scale-95"
+    style="background:linear-gradient(135deg,#f472b6,#a855f7)">
+    ✨ 生成活動建議！
+  </button>
+
+  <div id="results" class="space-y-4" style="display:none"></div>
+
+</main>
+
+<footer class="text-center py-4 text-xs text-gray-400">用心陪伴龍寶與鳳寶的每一刻 💕</footer>
+
+<script>
+const DB = [
+  // ══════════ 公園 ══════════
+  {scenes:['公園'],envs:['晴天'],states:['精力充沛','快斷線','父母疲憊'],
+   emoji:'☀️',title:'影子追逐',
+   desc:'找找自己和對方的影子！龍寶追鳳寶的影子、鳳寶踩龍寶的影子，爸媽喊「換！」就互換目標，歡笑不斷。',
+   tip:'父母可坐在一旁喊換，幾乎零體力消耗 😌',
+   twin:'兩人各有影子可互動，天然的雙人遊戲！'},
+
+  {scenes:['公園'],envs:['晴天'],states:['精力充沛'],
+   emoji:'🌿',title:'大地尋寶',
+   desc:'各自找 5 樣不同的自然物（葉子、石頭、棍子、花、沙），放入小袋子，看誰先集齊！',
+   tip:'準備兩個小袋子各給一個，製造小小競賽感',
+   twin:'分工搜尋，不搶東西，結束後分享成果'},
+
+  {scenes:['公園'],envs:['晴天'],states:['精力充沛'],
+   emoji:'⚽',title:'三角滾球',
+   desc:'三人坐成三角形，輪流把球滾給對方，喊名字再傳，訓練注意力與反應力。',
+   tip:'用沙灘球最好控制，2 歲剛剛好',
+   twin:'兩寶各有接球任務，不搶球也不無聊'},
+
+  {scenes:['公園'],envs:['晴天'],states:['精力充沛'],
+   emoji:'🐜',title:'螞蟻觀察家',
+   desc:'帶著放大鏡（或手機）一起趴在地上觀察螞蟻！龍寶負責數螞蟻數量，鳳寶負責指出螞蟻走的方向。',
+   tip:'準備一小塊餅乾碎屑引誘螞蟻聚集，效果超好',
+   twin:'分工觀察，各有任務，靜態卻超投入'},
+
+  {scenes:['公園'],envs:['晴天'],states:['精力充沛','父母疲憊'],
+   emoji:'🎈',title:'泡泡追追跑',
+   desc:'爸媽坐著吹泡泡，兩寶負責追著跑、拍破。比誰拍破的泡泡多，跑到筋疲力盡！',
+   tip:'大泡泡棒效果最好，飄得慢又大顆，孩子跑得開心',
+   twin:'同場競技不互搶，各自追自己的泡泡'},
+
+  {scenes:['公園'],envs:['晴天'],states:['快斷線'],
+   emoji:'🌸',title:'採花排隊遊戲',
+   desc:'找落花或草葉，兩寶各自排成一排圖案，比誰排得最長或最好看，爸媽當評審給讚！',
+   tip:'讓孩子自由創作，不要糾正「排法」，欣賞就好',
+   twin:'各排各的作品，結束後互相欣賞，培養美感與尊重'},
+
+  {scenes:['公園'],envs:['晴天'],states:['精力充沛'],
+   emoji:'🏔️',title:'爬坡挑戰賽',
+   desc:'找一個小坡，龍寶從左邊爬上去、鳳寶從右邊爬上去，在頂端會合擊掌！然後滾下來。',
+   tip:'準備濕紙巾，爬坡後大地清潔時間也是遊戲一部分',
+   twin:'各自路線不衝突，頂端會合製造雙胞胎儀式感'},
+
+  {scenes:['公園'],envs:['雨天'],states:['精力充沛','快斷線','父母疲憊'],
+   emoji:'💧',title:'水坑踩踩樂',
+   desc:'穿上雨鞋！比賽誰踩的水花最大，或輪流踩同一個水坑看誰先把水踩完。',
+   tip:'準備換洗衣物，盡情讓孩子玩！髒了就是成功了',
+   twin:'同一個水坑兩人都能踩，共享樂趣又不搶'},
+
+  {scenes:['公園'],envs:['雨天'],states:['精力充沛'],
+   emoji:'🌧️',title:'雨滴接接看',
+   desc:'手心朝上，數數看誰接到最多雨滴，舔一舔！再把葉子當小船放在水窪裡看誰的船漂最遠。',
+   tip:'大葉子最好用，說不定附近就能找到荷葉或芋頭葉',
+   twin:'各自有葉子船，一起比賽又不搶，自然共樂'},
+
+  {scenes:['公園'],envs:['晴天','雨天'],states:['快斷線','父母疲憊'],
+   emoji:'🌳',title:'大樹擁抱時間',
+   desc:'找一棵大樹，邀請兩寶一起抱住樹幹，閉眼感受樹皮的觸感，安靜 30 秒，聽聽樹的「心跳」。',
+   tip:'這招有自然的情緒降溫效果，特別適合崩潰前使用',
+   twin:'兩人一起抱同一棵樹，身體靠近產生連結感'},
+
+  {scenes:['公園'],envs:['晴天'],states:['精力充沛'],
+   emoji:'🦋',title:'動物模仿競走',
+   desc:'爸媽喊動物名稱，兩寶一起用那個方式移動：青蛙跳、螃蟹走、企鵝搖、猴子爬，繞著廣場一圈！',
+   tip:'越誇張的動物動作越好，全家一起做不丟臉',
+   twin:'一起做同樣動作，雙胞胎配合度超高'},
+
+  {scenes:['公園'],envs:['晴天','安靜'],states:['精力充沛','父母疲憊'],
+   emoji:'🌬️',title:'蒲公英許願',
+   desc:'找蒲公英或草穗，輪流吹，看誰一口氣吹得最遠！每次吹前要先許一個小願望。',
+   tip:'城市公園可改用吹落葉，效果也很好',
+   twin:'輪流吹不搶，共同許願儀式超可愛'},
+
+  // ══════════ 餐廳 ══════════
+  {scenes:['餐廳'],envs:['擁擠','安靜','晴天','雨天'],states:['精力充沛','快斷線','父母疲憊'],
+   emoji:'🍽️',title:'小廚師點餐',
+   desc:'打開菜單讓兩寶輪流「點餐」，指著圖片說想吃什麼。龍寶負責飲料、鳳寶負責主食，角色扮演超投入！',
+   tip:'各給一份菜單，有大人感，行為自然穩定',
+   twin:'分工點餐各司其職，自然減少搶菜單的衝突'},
+
+  {scenes:['餐廳'],envs:['擁擠','安靜'],states:['快斷線','父母疲憊'],
+   emoji:'✏️',title:'寶貝塗鴉分享',
+   desc:'用紙巾或隨身小本，兩寶各畫「今天看到的一件事」，畫完互相說給對方聽。',
+   tip:'隨身帶 3~4 支彩色筆，這招可以撐超過 15 分鐘！',
+   twin:'各畫各的不搶筆，分享時建立雙向溝通'},
+
+  {scenes:['餐廳'],envs:['擁擠'],states:['快斷線'],
+   emoji:'🤫',title:'肢體秘密手勢',
+   desc:'和兩寶約好秘密手勢：摸耳朵＝想喝水、比讚＝好吃、搖手＝不要。在擁擠場合用手勢溝通！',
+   tip:'事先在家練習一次，孩子會覺得自己很了不起',
+   twin:'兩寶可以互比手勢，像傳遞秘密一樣開心'},
+
+  {scenes:['餐廳'],envs:['安靜','擁擠'],states:['精力充沛','快斷線'],
+   emoji:'🧩',title:'筷子疊疊樂',
+   desc:'用免洗筷疊成井字形，一次疊一根，看誰加的那根讓塔倒掉就輸！超安靜又好玩。',
+   tip:'筷子要平放且輕放，加入規則「不能說話」更刺激',
+   twin:'輪流疊，天然的等待與專注訓練'},
+
+  {scenes:['餐廳'],envs:['安靜'],states:['快斷線','父母疲憊'],
+   emoji:'🍬',title:'猜猜我的味道',
+   desc:'拿出隨身零食，閉眼讓兩寶猜「甜的還是鹹的？」「脆的還是軟的？」，答對才能吃！',
+   tip:'事先準備 3~4 種不同口感零食，遊戲可以拖很長',
+   twin:'同時猜答案，比誰先說出來，有趣的腦力競賽'},
+
+  {scenes:['餐廳'],envs:['擁擠','安靜'],states:['精力充沛'],
+   emoji:'🔍',title:'餐桌找不同',
+   desc:'爸媽說「你能找到桌上圓形的東西嗎？」兩寶搶著找：碗、盤子、杯口……找到就放到中間。',
+   tip:'可以換「紅色的」「有洞的」「最小的」，玩法無限延伸',
+   twin:'搶答比賽，兩寶自然競爭又不打架'},
+
+  {scenes:['餐廳'],envs:['安靜'],states:['父母疲憊'],
+   emoji:'📱',title:'拍食物攝影師',
+   desc:'讓兩寶輪流用手機拍食物，龍寶拍飲料、鳳寶拍主食，爸媽選出「最美的照片」給讚。',
+   tip:'孩子很認真拍照時會安靜超久，爸媽可以好好吃飯 😂',
+   twin:'各有拍攝任務，不搶手機，各司其職'},
+
+  // ══════════ 家中 ══════════
+  {scenes:['家中'],envs:['晴天','雨天','安靜','擁擠'],states:['精力充沛'],
+   emoji:'📦',title:'紙箱探險基地',
+   desc:'把大紙箱剪出門窗變成城堡或太空船！龍寶當「駕駛」、鳳寶負責「導航」，一起出發冒險。',
+   tip:'紙箱免費，讓孩子用蠟筆裝飾，樂趣無限',
+   twin:'賦予不同角色，兩人都有存在感與任務感'},
+
+  {scenes:['家中'],envs:['晴天','雨天','安靜'],states:['父母疲憊'],
+   emoji:'🫧',title:'感官水盆料理',
+   desc:'臉盆裝淺水，加食用色素與廚具（杯子湯匙）。兩寶各自「煮飯」，輕鬆玩超過 30 分鐘！',
+   tip:'鋪浴巾防滑，父母可在旁邊小憩。這是救命神招 👼',
+   twin:'各自有工作區，不易搶東西'},
+
+  {scenes:['家中'],envs:['安靜'],states:['快斷線','父母疲憊'],
+   emoji:'🫧',title:'慢速泡泡時間',
+   desc:'吹泡泡！一個吹、另一個追著拍破，輪流交換。聲音柔和動作緩慢，有超強舒緩情緒效果。',
+   tip:'節奏放慢、聲音輕柔，可以帶動孩子跟著平靜',
+   twin:'一吹一拍天然分工，不會互搶'},
+
+  {scenes:['家中'],envs:['晴天','雨天','安靜','擁擠'],states:['精力充沛'],
+   emoji:'🏃',title:'客廳障礙賽',
+   desc:'用枕頭椅子在客廳設計跑道，龍寶先跑、鳳寶拍手數 1~5 計時，然後換人！',
+   tip:'故意設計有趣障礙，例如「必須轉三圈才能過關」',
+   twin:'輪流跑輪流計時，各有主角時刻'},
+
+  {scenes:['家中'],envs:['雨天','安靜'],states:['父母疲憊','快斷線'],
+   emoji:'📖',title:'睡前故事接龍',
+   desc:'躺在床上，爸媽說第一句，龍寶接一句，鳳寶接一句，循環接龍。不需準備，隨口就能玩！',
+   tip:'躺下來說故事，身體放鬆後情緒通常快速平穩',
+   twin:'兩人各自有發言時間，練習傾聽與接話'},
+
+  {scenes:['家中'],envs:['晴天','雨天'],states:['精力充沛'],
+   emoji:'🎨',title:'腳印畫作',
+   desc:'在浴室地板鋪紙，用可水洗顏料塗腳底，讓兩寶走過去留下腳印，創作「雙胞胎共同畫作」！',
+   tip:'可水洗顏料是關鍵，事後直接沖澡，輕鬆無痛收尾',
+   twin:'兩人的腳印合在一起才算完整，共同創作的作品'},
+
+  {scenes:['家中'],envs:['安靜'],states:['精力充沛','父母疲憊'],
+   emoji:'🧁',title:'廚房小幫手',
+   desc:'讓兩寶一起做簡單食物：龍寶負責攪拌、鳳寶負責倒料。做布丁、果凍或無烘焙餅乾都很適合。',
+   tip:'2 歲愛模仿大人，廚房任務讓他們超有成就感',
+   twin:'分工合作，各自有任務，完成後一起享用成果'},
+
+  {scenes:['家中'],envs:['晴天','雨天','安靜'],states:['快斷線','父母疲憊'],
+   emoji:'🎵',title:'枕頭音樂會',
+   desc:'把枕頭當鼓，用湯匙當鼓棒，播放喜歡的歌，兩寶各有一個枕頭鼓，一起打拍子！',
+   tip:'節奏感活動有安撫效果，崩潰中的孩子打鼓可以釋放情緒',
+   twin:'各有自己的鼓，一起演奏不搶，視覺上超可愛'},
+
+  {scenes:['家中'],envs:['晴天','雨天'],states:['精力充沛'],
+   emoji:'🧸',title:'玩具醫院',
+   desc:'把玩具當成「生病的病人」，龍寶當醫生、鳳寶當護士，輪流幫玩具「看診」。',
+   tip:'準備棉花棒、OK繃道具，孩子的投入程度會超乎想像',
+   twin:'醫護角色分工，兩人一起工作，建立合作意識'},
+
+  {scenes:['家中'],envs:['安靜'],states:['父母疲憊'],
+   emoji:'🧘',title:'小動物瑜伽',
+   desc:'一起做動物瑜伽動作：貓咪拱背、狗狗下犬式、蛇抬頭。爸媽躺著示範，兩寶照著做。',
+   tip:'配上輕柔音樂，這是最省力的親子活動之一，爸媽也能放鬆',
+   twin:'兩寶一起做同樣動作，互相觀摩很可愛'},
+
+  {scenes:['家中'],envs:['晴天','雨天','安靜'],states:['精力充沛'],
+   emoji:'🏗️',title:'積木城市建設',
+   desc:'龍寶負責蓋「房子」、鳳寶負責蓋「馬路」，合作建造一座城市！最後用小車子在城市裡跑。',
+   tip:'事先畫一張簡單的城市草圖給孩子參考，更有方向感',
+   twin:'分區建設，各有責任範圍，合作不打架'},
+
+  {scenes:['家中'],envs:['雨天','安靜'],states:['快斷線'],
+   emoji:'🛁',title:'泡澡感官遊戲',
+   desc:'提早洗澡！加入沐浴球或泡泡浴，給兩寶各自的玩水杯，比誰的泡泡最多、水花最高。',
+   tip:'水的觸感有天然舒緩效果，崩潰前進浴室通常奇蹟般有效',
+   twin:'同浴缸各自玩水，減少衝突，水讓大家都高興'},
+
+  {scenes:['家中'],envs:['晴天','雨天'],states:['精力充沛'],
+   emoji:'🎪',title:'床墊跳跳樂',
+   desc:'把床墊拉到地板上，兩寶一起跳！爸媽喊「坐下！」「跳起來！」「倒下去！」，速度越來越快。',
+   tip:'地板床墊比床更安全，孩子跳 10 分鐘等於運動 30 分鐘',
+   twin:'同台跳躍，一起反應指令，有天然的節奏同步感'},
+
+  {scenes:['家中'],envs:['安靜'],states:['精力充沛'],
+   emoji:'🃏',title:'圖卡配對王',
+   desc:'用繪本圖片或自製卡片玩配對，龍寶翻一張，鳳寶找另一張一樣的，輪流來。',
+   tip:'把繪本剪成小卡片或用 App 列印，簡單又超耐玩',
+   twin:'輪流翻牌，等待時練習耐心，配對到時一起慶祝'},
+
+  {scenes:['家中'],envs:['晴天'],states:['精力充沛','父母疲憊'],
+   emoji:'🌿',title:'陽台小農場',
+   desc:'給兩寶各自一個小花盆，一起種豆芽或小蔥。每天早上輪流澆水，記錄「今天長多高了」。',
+   tip:'豆芽 3 天就能看到變化，成就感來得快，孩子不會失去興趣',
+   twin:'各自有自己的盆栽，比較生長速度，長期的共同話題'},
+
+  // ══════════ 大眾運輸 ══════════
+  {scenes:['大眾運輸'],envs:['擁擠','安靜','晴天','雨天'],states:['精力充沛','快斷線','父母疲憊'],
+   emoji:'🌈',title:'顏色找找看',
+   desc:'指定一個顏色，兩寶比誰先找到車廂裡 3 樣同色物品，找到大聲說「找到了！」',
+   tip:'顏色換得快，可以從出發玩到下車',
+   twin:'同目標各自搜尋，不干擾彼此'},
+
+  {scenes:['大眾運輸'],envs:['擁擠'],states:['快斷線','父母疲憊'],
+   emoji:'🔢',title:'數站站魔法',
+   desc:'「還有 5 站！」讓兩寶一起大聲數站名，每到一站齊喊「到了！」培養時間感與期待感。',
+   tip:'把「剩幾站」變成期待而非焦慮，孩子情緒跟著穩定',
+   twin:'兩人可以搶著先喊，變成有趣的競賽'},
+
+  {scenes:['大眾運輸'],envs:['安靜'],states:['精力充沛','快斷線'],
+   emoji:'👂',title:'悄悄話傳聲筒',
+   desc:'爸媽悄悄告訴龍寶一個詞，龍寶再告訴鳳寶，鳳寶大聲說出答案。',
+   tip:'答案答錯了也很好笑，不用糾正，享受笑點就好',
+   twin:'天然傳話遊戲，兩寶有互動又不吵鬧'},
+
+  {scenes:['大眾運輸'],envs:['擁擠','安靜'],states:['精力充沛'],
+   emoji:'👁️',title:'車窗外大搜查',
+   desc:'龍寶負責找「紅色的車」，鳳寶負責找「大卡車」，看誰先在窗外找到 3 個，到站前比分數。',
+   tip:'分配不同目標，不會搶著找同一個，各自獨立任務',
+   twin:'各有尋找任務，同時進行不衝突'},
+
+  {scenes:['大眾運輸'],envs:['安靜'],states:['快斷線','父母疲憊'],
+   emoji:'🫶',title:'手指按摩時間',
+   desc:'爸媽輕輕捏兩寶的手指，從大拇指到小拇指，邊捏邊唱「這隻小豬上市場…」，超級舒緩。',
+   tip:'肢體接觸是 2 歲情緒崩潰的最快解方，記住這個口袋招數',
+   twin:'爸媽各捏一個孩子的手，兩寶同時被安撫'},
+
+  {scenes:['大眾運輸'],envs:['擁擠','安靜'],states:['精力充沛'],
+   emoji:'🎭',title:'猜猜我在演什麼',
+   desc:'爸媽不出聲只做動作（刷牙、吃飯、睡覺），兩寶搶著猜！猜對的人換來表演，猜不對繼續猜。',
+   tip:'搭捷運或公車時，周圍的人通常覺得很可愛不會有人在意',
+   twin:'搶答競賽，兩寶天然地互相刺激'},
+
+  {scenes:['大眾運輸'],envs:['安靜'],states:['父母疲憊'],
+   emoji:'🎶',title:'輕聲哼唱接歌',
+   desc:'爸媽哼一首歌的前幾個音，兩寶搶著說出歌名！猜對的接著哼下一首，誰哼誰猜輪流來。',
+   tip:'選孩子熟悉的兒歌，難度可以根據孩子反應即時調整',
+   twin:'搶答但不吵鬧，車廂裡最適合的安靜遊戲'},
+
+  // ══════════ 全場景通用 ══════════
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['快斷線','父母疲憊'],
+   emoji:'🕯️',title:'吹蠟燭呼吸法',
+   desc:'假裝手指是蠟燭，請兩寶用力吹熄 5 根「生日蠟燭」！深呼吸讓情緒快速降溫，隨時隨地可用。',
+   tip:'加上「許願」的儀式感，孩子更投入，效果翻倍',
+   twin:'一起吹一起許願，共同體驗帶來親密連結'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['精力充沛','快斷線','父母疲憊'],
+   emoji:'👆',title:'身體部位搶答',
+   desc:'爸媽說「摸你的鼻子！」兩寶搶快摸對。進階版：「摸鳳寶的耳朵！」讓他們互相觸碰，超療癒。',
+   tip:'速度慢可安撫情緒，速度快可消耗精力，自由調整',
+   twin:'互摸彼此身體部位，增進雙胞胎間的親密互動'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['父母疲憊'],
+   emoji:'🪞',title:'小鏡子遊戲',
+   desc:'一個寶寶做動作，另一個當鏡子模仿，爸媽當裁判說「像！」或「不像！」3 分鐘後互換角色。',
+   tip:'爸媽幾乎不用動，孩子卻笑到不行 😂 疲憊時的救星',
+   twin:'雙胞胎天生愛模仿彼此，這遊戲命中要害！'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['精力充沛','快斷線','父母疲憊'],
+   emoji:'🤸',title:'Simon 說說說',
+   desc:'爸媽說「Simon 說：舉手！」兩寶要照做；直接說「蹲下！」不跟「Simon 說」就不能動，說錯了換人當 Simon！',
+   tip:'2 歲版可以簡化，不用嚴格執行規則，重點是快樂',
+   twin:'兩寶一起反應，同步的動作讓彼此覺得很好笑'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['快斷線','父母疲憊'],
+   emoji:'🌙',title:'今天最棒一件事',
+   desc:'爸媽問「今天最棒的一件事是什麼？」龍寶說一個，鳳寶說一個，爸媽也說一個，輪流分享。',
+   tip:'睡前、等待時、情緒崩潰後都適用，把注意力引導到正向記憶',
+   twin:'兩寶分享不同的事，發現彼此的不同視角'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['精力充沛'],
+   emoji:'🏆',title:'誰的聲音最大',
+   desc:'爸媽說動物名字，兩寶一起發出那個動物的叫聲，比誰叫得最像！貓、狗、牛、青蛙、大象！',
+   tip:'戶外或不吵鬧的場合效果最好，室內版改成「誰叫得最小聲」',
+   twin:'一起叫，笑到不行，很適合釋放多餘能量'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['精力充沛','快斷線','父母疲憊'],
+   emoji:'✌️',title:'剪刀石頭布決鬥',
+   desc:'教兩寶玩剪刀石頭布！輸的人要做一個傻動作（搖搖頭、拍肚子），贏的人跟著一起做！',
+   tip:'2 歲不一定出得準，但儀式感讓他們超投入，失敗也不介意',
+   twin:'一對一對決，天然的雙人互動，不需要大人太多介入'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['快斷線'],
+   emoji:'🤗',title:'雙寶抱抱充電',
+   desc:'爸媽蹲下來，同時把兩寶都抱進懷裡，說「我們三個是一個充電器，數到 10 就充飽電了！」一起數。',
+   tip:'身體接觸是最快的情緒急救，這招不分場合都管用',
+   twin:'三人同時擁抱，雙胞胎同時被安撫，效率最高'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['精力充沛'],
+   emoji:'🎯',title:'丟豆包遊戲',
+   desc:'把手帕或小毛巾折成球，爸媽當目標伸出手，兩寶輪流投，投進手裡就得分！',
+   tip:'隨身帶一條小手帕就能玩，等位時的救星',
+   twin:'輪流投，等待時練習耐心，投進時超有成就感'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['父母疲憊','快斷線'],
+   emoji:'🌊',title:'肚子呼吸法',
+   desc:'讓兩寶躺下或坐好，在肚子上放一個小玩具，練習深呼吸讓玩具「搭船」上下。爸媽一起做！',
+   tip:'把注意力從情緒轉移到身體感受，是 2 歲最有效的情緒調節法',
+   twin:'各自放玩具在肚子上，看對方的玩具在動，互相覺得好笑'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['精力充沛','快斷線','父母疲憊'],
+   emoji:'🎤',title:'我的最愛大調查',
+   desc:'爸媽問「你最喜歡的顏色是什麼？」「最喜歡的食物？」「最喜歡的動物？」兩寶輪流回答，發現彼此不一樣的地方！',
+   tip:'記錄下來，幾個月後再問一次，看看答案有沒有改變，特別有趣',
+   twin:'發現雙胞胎的不同喜好，建立各自的獨特性'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['精力充沛'],
+   emoji:'🧲',title:'跟我這樣做',
+   desc:'爸媽做一個動作，兩寶要一模一樣跟著做。然後龍寶出題、鳳寶跟、鳳寶出題龍寶跟，輪流當出題者！',
+   tip:'動作可以越來越誇張，笑聲越來越大，最後三人都笑翻',
+   twin:'輪流當領導者，雙胞胎建立「我也可以帶領對方」的自信'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['快斷線','父母疲憊'],
+   emoji:'⭐',title:'星星貼紙獎勵',
+   desc:'隨身帶一張小貼紙，當兩寶做到「好好等待」「輕聲說話」或「和對方分享」，就貼一顆星星在手背上。',
+   tip:'2 歲超愛貼紙，這個方法在崩潰前使用效果最好，不是懲罰而是引導',
+   twin:'兩寶同時觀看對方的手背，互相監督也互相鼓勵'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['精力充沛','快斷線','父母疲憊'],
+   emoji:'🫁',title:'大聲小聲變變變',
+   desc:'爸媽喊「大聲！」兩寶一起大聲說話或唱歌；喊「小聲！」全部變成耳語。速度越來越快！',
+   tip:'在餐廳用「小聲模式」，孩子把降音量當遊戲，效果超好',
+   twin:'同步反應，兩寶自然對齊，製造整齊的成就感'},
+
+  {scenes:['公園','家中','餐廳','大眾運輸'],envs:['晴天','雨天','擁擠','安靜'],states:['精力充沛'],
+   emoji:'🦸',title:'超級英雄任務',
+   desc:'爸媽說「任務開始！你們要把那個垃圾桶裡的紙「用力踩平」！」給兩寶隨機小任務，完成後慶祝。',
+   tip:'任務要具體且可完成，2 歲很需要「我辦到了！」的成就感',
+   twin:'同一個任務一起完成，雙人英雄比單人更帥'},
+];
+
+const sel = {scene:null, env:null, state:null};
+
+document.querySelectorAll('.tag-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const g = btn.dataset.group;
+    document.querySelectorAll('[data-group="'+g+'"]').forEach(b => {
+      b.classList.remove('active');
+      b.style.boxShadow = '';
+    });
+    sel[g] = btn.dataset.value;
+    btn.classList.add('active');
+    btn.style.boxShadow = '0 0 0 3px #a855f7';
+  });
+});
+
+function generate() {
+  const {scene, env, state} = sel;
+  let pool = DB.filter(a =>
+    (!scene || a.scenes.includes(scene)) &&
+    (!env   || a.envs.includes(env))   &&
+    (!state || a.states.includes(state))
+  );
+  if (pool.length < 3) pool = DB.filter(a =>
+    (!scene || a.scenes.includes(scene)) && (!state || a.states.includes(state))
+  );
+  if (pool.length < 3) pool = [...DB];
+
+  const picks = pool.sort(() => Math.random()-.5).slice(0,3);
+  const el = document.getElementById('results');
+  el.style.display = 'block';
+  el.innerHTML = '';
+
+  const tags = [scene,env,state].filter(Boolean);
+  const tagHtml = tags.length
+    ? tags.map(t=>'<span style="display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;color:#6d28d9;background:#ede9fe;margin-right:4px">'+t+'</span>').join('')
+    : '<span style="font-size:12px;color:#9ca3af">（精選推薦）</span>';
+
+  const hdr = document.createElement('div');
+  hdr.className = 'card-in';
+  hdr.innerHTML = '<div style="font-weight:700;color:#374151;margin-bottom:8px">✨ 為雙寶推薦的活動</div><div style="margin-bottom:4px">'+tagHtml+'</div>';
+  el.appendChild(hdr);
+
+  const palettes = [
+    {grad:'#f472b6,#ec4899',bg:'#fff0f6',border:'#fbcfe8'},
+    {grad:'#a78bfa,#7c3aed',bg:'#f5f3ff',border:'#ddd6fe'},
+    {grad:'#fbbf24,#f59e0b',bg:'#fffbeb',border:'#fde68a'},
+  ];
+
+  picks.forEach((item, i) => {
+    const p = palettes[i];
+    const card = document.createElement('div');
+    card.className = 'card-in';
+    card.style.cssText = 'border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);border:2px solid '+p.border+';animation-delay:'+i*.12+'s;opacity:0';
+    card.innerHTML =
+      '<div style="background:linear-gradient(135deg,'+p.grad+');padding:12px 16px;display:flex;align-items:center;gap:10px">'+
+        '<span style="font-size:22px">'+item.emoji+'</span>'+
+        '<span style="color:white;font-weight:700;font-size:15px">'+item.title+'</span>'+
+        '<span style="margin-left:auto;background:rgba(255,255,255,0.25);color:white;font-size:11px;padding:2px 8px;border-radius:99px">#'+(i+1)+'</span>'+
+      '</div>'+
+      '<div style="background:'+p.bg+';padding:14px 16px">'+
+        '<p style="color:#374151;font-size:13.5px;line-height:1.7;margin-bottom:10px">'+item.desc+'</p>'+
+        '<div style="background:white;border-radius:12px;padding:10px 12px;margin-bottom:8px">'+
+          '<div style="font-size:11px;font-weight:700;color:#9ca3af;margin-bottom:4px">💡 爸媽小提示</div>'+
+          '<div style="font-size:12.5px;color:#4b5563;line-height:1.6">'+item.tip+'</div>'+
+        '</div>'+
+        '<div style="background:white;border-radius:12px;padding:10px 12px">'+
+          '<div style="font-size:11px;font-weight:700;color:#9ca3af;margin-bottom:4px">👯 雙胞胎設計巧思</div>'+
+          '<div style="font-size:12.5px;color:#6d28d9;font-weight:600;line-height:1.6">'+item.twin+'</div>'+
+        '</div>'+
+      '</div>';
+    el.appendChild(card);
+  });
+
+  const reBtn = document.createElement('button');
+  reBtn.className = 'card-in';
+  reBtn.style.cssText = 'width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:600;color:#7c3aed;border:2px dashed #c4b5fd;background:white;animation-delay:.4s;opacity:0;cursor:pointer;display:block';
+  reBtn.textContent = '🎲 再換三個看看';
+  reBtn.onclick = generate;
+  el.appendChild(reBtn);
+
+  setTimeout(() => el.scrollIntoView({behavior:'smooth',block:'start'}), 80);
+}
+</script>
+</body>
+</html>
