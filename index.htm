@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雙寶放電小助手 - 2歲龍鳳胎專屬</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #fffaf0; }
+        .card-gradient { background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-md mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-orange-600 mb-2">🧒 雙寶放電小助手 👧</h1>
+            <p class="text-gray-600">專為 2 歲龍鳳胎父母設計的即時方案</p>
+        </header>
+
+        <section class="bg-white rounded-3xl shadow-xl p-6 mb-8 border-2 border-orange-100">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">📍 所在場景</label>
+                    <select id="scene" class="w-full p-3 rounded-xl border-gray-200 bg-gray-50 focus:ring-2 focus:ring-orange-400 outline-none">
+                        <option value="park">公園 / 戶外</option>
+                        <option value="restaurant">餐廳 / 室內公眾場域</option>
+                        <option value="home">溫暖的家</option>
+                        <option value="transport">交通工具上 (車/捷運)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">☁️ 環境條件</label>
+                    <div class="flex gap-2 flex-wrap" id="env-tags">
+                        <button onclick="selectTag('env', 'sunny')" class="tag-btn-env px-4 py-2 rounded-full border bg-white text-sm" data-value="sunny">☀️ 晴天/寬廣</button>
+                        <button onclick="selectTag('env', 'rainy')" class="tag-btn-env px-4 py-2 rounded-full border bg-white text-sm" data-value="rainy">☔ 雨天/室內</button>
+                        <button onclick="selectTag('env', 'crowded')" class="tag-btn-env px-4 py-2 rounded-full border bg-white text-sm" data-value="crowded">👥 擁擠</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">🔋 當前狀態</label>
+                    <select id="status" class="w-full p-3 rounded-xl border-gray-200 bg-gray-50 focus:ring-2 focus:ring-orange-400 outline-none">
+                        <option value="high-energy">🔋 精力充沛 (快放電！)</option>
+                        <option value="meltdown">⚠️ 快斷線了 (需安撫)</option>
+                        <option value="parents-tired">😴 父母沒電 (想靜靜)</option>
+                    </select>
+                </div>
+
+                <button onclick="generateActivities()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transform transition active:scale-95 text-lg">
+                    ✨ 獲取活動建議
+                </button>
+            </div>
+        </section>
+
+        <div id="results" class="space-y-4">
+            </div>
+    </div>
+
+    <script>
+        // 資料庫：針對 2 歲雙胞胎設計
+        const activityDb = [
+            { id: 1, title: "影子賽跑", scene: ["park"], env: ["sunny"], status: ["high-energy"], desc: "讓龍龍跑在前方，鳳鳳追逐他的影子，再交換位置。練習大肌肉發展與輪流。" },
+            { id: 2, title: "紙巾疊疊樂", scene: ["restaurant"], env: ["crowded", "rainy"], status: ["parents-tired"], desc: "利用餐廳的餐巾紙，兩人比賽誰能疊得高。練習精細動作與手眼協調。" },
+            { id: 3, title: "安靜繪本捉迷藏", scene: ["home", "transport"], env: ["rainy", "crowded"], status: ["meltdown"], desc: "指著書中細節讓孩子尋找。兩個人一人找紅色的，一人找綠色的，避免爭搶。" },
+            { id: 4, title: "模仿小火車", scene: ["park", "home"], env: ["sunny", "rainy"], status: ["high-energy"], desc: "爸爸/媽媽當火車頭，龍龍鳳鳳牽著衣服跟在後，變換速度。建立團體規範感。" },
+            { id: 5, title: "膠帶撕撕樂", scene: ["home", "transport"], env: ["rainy"], status: ["parents-tired"], desc: "在桌面上貼上紙膠帶，讓雙寶合作撕下來。這能讓他們安靜非常久。" },
+            { id: 6, title: "尋寶遊戲：顏色篇", scene: ["park", "restaurant"], env: ["sunny", "crowded"], status: ["high-energy"], desc: "請孩子找出周遭 3 個紅色的東西。龍龍找大的，鳳鳳找小的。" },
+            { id: 7, title: "耳語小秘密", scene: ["transport", "restaurant"], env: ["crowded"], status: ["meltdown"], desc: "對著雙寶耳語，說出下一個地點，讓他們在冷靜中產生期待感。" }
+        ];
+
+        let selectedEnv = 'sunny';
+
+        function selectTag(type, val) {
+            selectedEnv = val;
+            document.querySelectorAll('.tag-btn-env').forEach(btn => {
+                btn.classList.remove('bg-orange-100', 'border-orange-500', 'text-orange-700');
+            });
+            event.target.classList.add('bg-orange-100', 'border-orange-500', 'text-orange-700');
+        }
+
+        function generateActivities() {
+            const scene = document.getElementById('scene').value;
+            const status = document.getElementById('status').value;
+            const resultsDiv = document.getElementById('results');
+            
+            // 篩選邏輯
+            let filtered = activityDb.filter(act => 
+                act.scene.includes(scene) || 
+                act.env.includes(selectedEnv) || 
+                act.status.includes(status)
+            );
+
+            // 隨機選 3 個
+            const shuffled = filtered.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+            resultsDiv.innerHTML = '';
+            shuffled.forEach(act => {
+                const card = `
+                    <div class="card-gradient p-5 rounded-2xl shadow-md border border-orange-50 border-l-4 border-l-orange-400 animate-fade-in">
+                        <h3 class="font-bold text-lg text-gray-800 mb-2">⭐ ${act.title}</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed">${act.desc}</p>
+                    </div>
+                `;
+                resultsDiv.innerHTML += card;
+            });
+
+            if (shuffled.length === 0) {
+                resultsDiv.innerHTML = '<p class="text-center text-gray-500">此組合暫無建議，試試切換條件吧！</p>';
+            }
+        }
+
+        // 預設選取第一個標籤
+        window.onload = () => selectTag('env', 'sunny');
+    </script>
+</body>
+</html>
